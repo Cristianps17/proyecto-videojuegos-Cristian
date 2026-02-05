@@ -1,42 +1,117 @@
 {
   "videojuegos": [
     {
-      "id": "1",
-      "nombre": "Super Mario Odyssey",
-      "descripcion": "Mario vuelve en 3D para recoger lunas y salvar a la princesa.",
-      "fechaLanzamiento": "2017-10-27",
-      "compania": "Nintendo",
-      "plataformas": ["Switch"],
-      "categorias": ["Aventura", "Plataformas"],
-      "precio": 49.95,
-      "imagen": "https://m.media-amazon.com/images/I/81s7B+TDUyL._AC_UF1000,1000_QL80_.jpg",
-      "video": ""
-    },
-    {
       "id": "2",
       "nombre": "Elden Ring",
-      "descripcion": "Juego muy dificil de mundo abierto creado por FromSoftware.",
+      "descripcion": "Levántate, Tiznado, y déjate guiar por la gracia para esgrimir el poder del Anillo de Elden y convertirte en un Señor de Elden en las Tierras Intermedias.",
       "fechaLanzamiento": "2022-02-25",
       "compania": "FromSoftware",
-      "plataformas": ["PC", "PS5", "Xbox One"],
-      "categorias": ["Rol", "Aventura"],
-      "precio": 69.90,
-      "imagen": "https://image.api.playstation.com/vulcan/ap/rnd/202110/2000/phQCOjLw33V5z5d0l4h2Xw5V.png",
-      "video": ""
+      "plataformas": [
+        "PC",
+        "PS5",
+        "Xbox One"
+      ],
+      "categorias": [
+        "Rol",
+        "Aventura"
+      ],
+      "precio": 69.99,
+      "imagen": "https://imgs.search.brave.com/dw0OsXVw4e_1jS_8eXXGFxxEl8DQPkuYirIj1xYJnI0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9hc3Nl/dHMtcHJkLmlnbmlt/Z3MuY29tLzIwMjEv/MDYvMTIvZWxkZW4t/cmluZy1idXR0b24t/MDMtMTYyMzQ2MDU2/MDY2NC5qcGc_Y3Jv/cD0xOjEsc21hcnQm/Zm9ybWF0PWpwZyZh/dXRvPXdlYnAmcXVh/bGl0eT04MA",
+      "video": "https://www.youtube.com/watch?v=E3Huy2cdih0"
     },
     {
-      "id": "3",
-      "nombre": "FIFA 24",
-      "descripcion": "El simulador de futbol de cada año con nuevos equipos.",
-      "fechaLanzamiento": "2023-09-29",
-      "compania": "EA Sports",
-      "plataformas": ["PC", "PS5", "Xbox One", "Switch"],
-      "categorias": ["Deporte", "Simulación"],
-      "precio": 79.99,
-      "imagen": "https://m.media-amazon.com/images/I/81x4R3XJqWL._AC_UF894,1000_QL80_.jpg",
-      "video": ""
+      "id": "1770324397266",
+      "nombre": "Red Dead Redemption 2",
+      "descripcion": "Estados Unidos, 1899. El ocaso del Salvaje Oeste ha comenzado. Arthur Morgan y la banda de Van der Linde se ven obligados a huir.",
+      "precio": 59,
+      "imagen": "https://placehold.co/600x400/8a0303/ffffff?text=Red+Dead+2",
+      "categorias": [
+        "Shooter",
+        "Aventura"
+      ],
+      "plataformas": [
+        "PC",
+        "PS5",
+        "Xbox One"
+      ],
+      "compania": "Rockstar Games",
+      "fechaLanzamiento": "2018-01-24"
     }
   ],
-  "categorias": ["Lucha", "Arcade", "Plataformas", "Shooter", "Estrategia", "Simulación", "Deporte", "Aventura", "Rol", "Educación", "Puzzle"],
-  "plataformas": ["PC", "PS5", "Xbox One", "Switch", "Android", "iOS", "Otras"]
+  "categorias": [
+    {
+      "id": "cat1",
+      "nombre": "Lucha"
+    },
+    {
+      "id": "cat2",
+      "nombre": "Arcade"
+    },
+    {
+      "id": "cat3",
+      "nombre": "Plataformas"
+    },
+    {
+      "id": "cat4",
+      "nombre": "Shooter"
+    },
+    {
+      "id": "cat5",
+      "nombre": "Estrategia"
+    },
+    {
+      "id": "cat6",
+      "nombre": "Simulación"
+    },
+    {
+      "id": "cat7",
+      "nombre": "Deporte"
+    },
+    {
+      "id": "cat8",
+      "nombre": "Aventura"
+    },
+    {
+      "id": "cat9",
+      "nombre": "Rol"
+    },
+    {
+      "id": "cat10",
+      "nombre": "Educación"
+    },
+    {
+      "id": "cat11",
+      "nombre": "Puzzle"
+    }
+  ],
+  "plataformas": [
+    {
+      "id": "plat1",
+      "nombre": "PC"
+    },
+    {
+      "id": "plat2",
+      "nombre": "PS5"
+    },
+    {
+      "id": "plat3",
+      "nombre": "Xbox One"
+    },
+    {
+      "id": "plat4",
+      "nombre": "Switch"
+    },
+    {
+      "id": "plat5",
+      "nombre": "Android"
+    },
+    {
+      "id": "plat6",
+      "nombre": "iOS"
+    },
+    {
+      "id": "plat7",
+      "nombre": "Otras"
+    }
+  ]
 }
