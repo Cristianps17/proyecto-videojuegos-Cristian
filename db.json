@@ -1,0 +1,42 @@
+{
+  "videojuegos": [
+    {
+      "id": "1",
+      "nombre": "Super Mario Odyssey",
+      "descripcion": "Mario vuelve en 3D para recoger lunas y salvar a la princesa.",
+      "fechaLanzamiento": "2017-10-27",
+      "compania": "Nintendo",
+      "plataformas": ["Switch"],
+      "categorias": ["Aventura", "Plataformas"],
+      "precio": 49.95,
+      "imagen": "https://m.media-amazon.com/images/I/81s7B+TDUyL._AC_UF1000,1000_QL80_.jpg",
+      "video": ""
+    },
+    {
+      "id": "2",
+      "nombre": "Elden Ring",
+      "descripcion": "Juego muy dificil de mundo abierto creado por FromSoftware.",
+      "fechaLanzamiento": "2022-02-25",
+      "compania": "FromSoftware",
+      "plataformas": ["PC", "PS5", "Xbox One"],
+      "categorias": ["Rol", "Aventura"],
+      "precio": 69.90,
+      "imagen": "https://image.api.playstation.com/vulcan/ap/rnd/202110/2000/phQCOjLw33V5z5d0l4h2Xw5V.png",
+      "video": ""
+    },
+    {
+      "id": "3",
+      "nombre": "FIFA 24",
+      "descripcion": "El simulador de futbol de cada año con nuevos equipos.",
+      "fechaLanzamiento": "2023-09-29",
+      "compania": "EA Sports",
+      "plataformas": ["PC", "PS5", "Xbox One", "Switch"],
+      "categorias": ["Deporte", "Simulación"],
+      "precio": 79.99,
+      "imagen": "https://m.media-amazon.com/images/I/81x4R3XJqWL._AC_UF894,1000_QL80_.jpg",
+      "video": ""
+    }
+  ],
+  "categorias": ["Lucha", "Arcade", "Plataformas", "Shooter", "Estrategia", "Simulación", "Deporte", "Aventura", "Rol", "Educación", "Puzzle"],
+  "plataformas": ["PC", "PS5", "Xbox One", "Switch", "Android", "iOS", "Otras"]
+}
