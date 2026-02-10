@@ -1,17 +1,28 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './theme';
+
+import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import { CssBaseline } from '@mui/material'; // Esto resetea el CSS del navegador
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 function App() {
   return (
-    <>
-      <CssBaseline /> {/* Normaliza estilos y pone fondo bonito */}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </BrowserRouter>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {}
+      <AuthProvider>
+        <BrowserRouter>
+          <Navbar /> {}
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
