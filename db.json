@@ -1,9 +1,33 @@
 {
+  "users": [
+    {
+      "email": "cristianpadillasolana@gmail.com",
+      "password": "$2a$10$FZmR648kMR9Jh05J0z3Lau9hdlfb1JVOHkjdC1npEzTYVw42ZPxY.",
+      "id": 1
+    }
+  ],
   "videojuegos": [
+    {
+      "id": "1",
+      "nombre": "Super Mario Odyssey",
+      "descripcion": "Únete a Mario en una aventura en 3D enorme.",
+      "fechaLanzamiento": "2017-10-27",
+      "compania": "Nintendo",
+      "plataformas": [
+        "Switch"
+      ],
+      "categorias": [
+        "Aventura",
+        "Plataformas"
+      ],
+      "precio": 59.99,
+      "imagen": "https://placehold.co/600x400/e70012/ffffff?text=Super+Mario",
+      "video": "https://www.youtube.com/watch?v=wGQHQc_3qUE"
+    },
     {
       "id": "2",
       "nombre": "Elden Ring",
-      "descripcion": "Levántate, Tiznado, y déjate guiar por la gracia para esgrimir el poder del Anillo de Elden y convertirte en un Señor de Elden en las Tierras Intermedias.",
+      "descripcion": "Levántate, Tiznado, y déjate guiar por la gracia.",
       "fechaLanzamiento": "2022-02-25",
       "compania": "FromSoftware",
       "plataformas": [
@@ -16,26 +40,8 @@
         "Aventura"
       ],
       "precio": 69.99,
-      "imagen": "https://imgs.search.brave.com/dw0OsXVw4e_1jS_8eXXGFxxEl8DQPkuYirIj1xYJnI0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9hc3Nl/dHMtcHJkLmlnbmlt/Z3MuY29tLzIwMjEv/MDYvMTIvZWxkZW4t/cmluZy1idXR0b24t/MDMtMTYyMzQ2MDU2/MDY2NC5qcGc_Y3Jv/cD0xOjEsc21hcnQm/Zm9ybWF0PWpwZyZh/dXRvPXdlYnAmcXVh/bGl0eT04MA",
+      "imagen": "https://placehold.co/600x400/222222/d4af37?text=Elden+Ring",
       "video": "https://www.youtube.com/watch?v=E3Huy2cdih0"
-    },
-    {
-      "id": "1770324397266",
-      "nombre": "Red Dead Redemption 2",
-      "descripcion": "Estados Unidos, 1899. El ocaso del Salvaje Oeste ha comenzado. Arthur Morgan y la banda de Van der Linde se ven obligados a huir.",
-      "precio": 59,
-      "imagen": "https://placehold.co/600x400/8a0303/ffffff?text=Red+Dead+2",
-      "categorias": [
-        "Shooter",
-        "Aventura"
-      ],
-      "plataformas": [
-        "PC",
-        "PS5",
-        "Xbox One"
-      ],
-      "compania": "Rockstar Games",
-      "fechaLanzamiento": "2018-01-24"
     }
   ],
   "categorias": [

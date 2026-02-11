@@ -1,29 +1,45 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Container, Grid, Card, CardMedia, CardContent, Typography, TextField, FormControlLabel, Checkbox, Paper, Box, Chip, Skeleton } from '@mui/material';
+import { 
+  Container, Grid, Card, CardMedia, CardContent, Typography, 
+  TextField, FormControlLabel, Checkbox, Paper, Box, Chip, Skeleton, Button 
+} from '@mui/material';
+
+// FÍJATE: AQUÍ YA NO HAY NINGÚN IMPORT DE ICONOS QUE PUEDA FALLAR
 
 export default function Home() {
   const [juegos, setJuegos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [cargando, setCargando] = useState(true); // Efecto de carga
+  const [cargando, setCargando] = useState(true);
   const [catsSeleccionadas, setCatsSeleccionadas] = useState([]);
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const [resJuegos, resCats] = await Promise.all([
-          api.get('/videojuegos'),
-          api.get('/categorias')
-        ]);
-        setJuegos(resJuegos.data);
-        setCategorias(resCats.data);
-        setCatsSeleccionadas(resCats.data.map(c => c.nombre));
-      } catch (error) { console.error(error); } 
-      finally { setCargando(false); }
-    };
     cargarDatos();
   }, []);
+
+  const cargarDatos = async () => {
+    try {
+      const [resJuegos, resCats] = await Promise.all([
+        api.get('/videojuegos'),
+        api.get('/categorias')
+      ]);
+      setJuegos(resJuegos.data);
+      setCategorias(resCats.data);
+      setCatsSeleccionadas(resCats.data.map(c => c.nombre));
+    } catch (error) { console.error(error); } 
+    finally { setCargando(false); }
+  };
+
+  const borrarJuego = async (id) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este juego?")) return;
+    try {
+      await api.delete(`/videojuegos/${id}`);
+      setJuegos(juegos.filter(j => j.id !== id));
+    } catch (error) {
+      alert("Error al borrar. ¿Quizás no tienes permisos?");
+    }
+  };
 
   const toggleCat = (nombre) => {
     setCatsSeleccionadas(prev => prev.includes(nombre) ? prev.filter(c => c !== nombre) : [...prev, nombre]);
@@ -36,33 +52,23 @@ export default function Home() {
 
   return (
     <Box>
-      {/* HERO BANNER (Esto le da el toque PRO) */}
       <Box sx={{ 
         height: '300px', 
         backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3), #121212), url("https://wallpaperaccess.com/full/7445.jpg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        mb: 4
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', mb: 4
       }}>
-        <Typography variant="h2" component="h1" sx={{ fontWeight: 900, textShadow: '0 0 20px #7c4dff' }}>
+        <Typography variant="h2" component="h1" sx={{ fontWeight: 900, textShadow: '0 0 20px #7c4dff', textAlign: 'center', px: 2 }}>
           EXPLORA MUNDOS
-        </Typography>
-        <Typography variant="h5" sx={{ color: '#00e5ff', mt: 1 }}>
-          Tu colección definitiva v2
         </Typography>
       </Box>
 
       <Container maxWidth="lg" sx={{ mb: 4 }}>
-        {/* FILTROS */}
         <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, background: 'rgba(255,255,255,0.05)' }}>
           <TextField 
             fullWidth label="¿Qué buscas hoy?" variant="outlined" 
             value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, input: { color: 'white' } }}
           />
           <Grid container>
             {categorias.map(cat => (
@@ -76,7 +82,6 @@ export default function Home() {
           </Grid>
         </Paper>
 
-        {/* GRID DE JUEGOS */}
         <Grid container spacing={3}>
           {cargando ? Array.from(new Array(6)).map((_, i) => (
              <Grid item xs={12} sm={6} md={4} key={i}><Skeleton variant="rectangular" height={300} sx={{borderRadius: 2}} /></Grid>
@@ -98,6 +103,18 @@ export default function Home() {
                     ))}
                   </Box>
                 </CardContent>
+                
+                {/* BOTÓN DE TEXTO SIN ICONO - ESTO NO FALLA */}
+                <Box sx={{ p: 2 }}>
+                   <Button 
+                     variant="contained" 
+                     color="error" 
+                     fullWidth
+                     onClick={() => borrarJuego(juego.id)}
+                   >
+                      ELIMINAR JUEGO
+                   </Button>
+                </Box>
               </Card>
             </Grid>
           ))}
