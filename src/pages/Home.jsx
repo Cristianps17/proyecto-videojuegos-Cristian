@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { 
   Container, Grid, Card, CardMedia, CardContent, Typography, 
-  TextField, FormControlLabel, Checkbox, Paper, Box, Chip, Skeleton, Button 
+  TextField, FormControlLabel, Checkbox, Paper, Box, Chip, Skeleton, Button,
+  Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-
-// FÍJATE: AQUÍ YA NO HAY NINGÚN IMPORT DE ICONOS QUE PUEDA FALLAR
 
 export default function Home() {
   const [juegos, setJuegos] = useState([]);
@@ -13,6 +12,12 @@ export default function Home() {
   const [cargando, setCargando] = useState(true);
   const [catsSeleccionadas, setCatsSeleccionadas] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  
+  // ESTADO PARA EL FORMULARIO DE NUEVO JUEGO
+  const [open, setOpen] = useState(false);
+  const [nuevoJuego, setNuevoJuego] = useState({
+    nombre: '', descripcion: '', precio: '', imagen: ''
+  });
 
   useEffect(() => {
     cargarDatos();
@@ -36,8 +41,32 @@ export default function Home() {
     try {
       await api.delete(`/videojuegos/${id}`);
       setJuegos(juegos.filter(j => j.id !== id));
+    } catch (error) { alert("Error al borrar. ¿Quizás no tienes permisos?"); }
+  };
+
+  // FUNCIÓN PARA CREAR JUEGO
+  const crearJuego = async () => {
+    if (!nuevoJuego.nombre || !nuevoJuego.precio) return alert("Rellena nombre y precio");
+    
+    try {
+      // Creamos el objeto con datos por defecto para lo que no rellenamos
+      const juegoFinal = {
+        ...nuevoJuego,
+        id: Date.now().toString(), // ID único temporal
+        precio: Number(nuevoJuego.precio),
+        fechaLanzamiento: new Date().toISOString().split('T')[0],
+        compania: "Indie",
+        plataformas: ["PC"],
+        categorias: ["Aventura"], // Por defecto
+        video: ""
+      };
+
+      const res = await api.post('/videojuegos', juegoFinal);
+      setJuegos([...juegos, res.data]); // Lo añadimos a la lista visual
+      setOpen(false); // Cerramos el modal
+      setNuevoJuego({ nombre: '', descripcion: '', precio: '', imagen: '' }); // Limpiamos
     } catch (error) {
-      alert("Error al borrar. ¿Quizás no tienes permisos?");
+      alert("Error al crear. ¿Estás logueado?");
     }
   };
 
@@ -61,6 +90,11 @@ export default function Home() {
         <Typography variant="h2" component="h1" sx={{ fontWeight: 900, textShadow: '0 0 20px #7c4dff', textAlign: 'center', px: 2 }}>
           EXPLORA MUNDOS
         </Typography>
+        
+        {/* BOTÓN GRANDE PARA AÑADIR JUEGO */}
+        <Button variant="contained" color="secondary" size="large" sx={{ mt: 3, fontWeight: 'bold' }} onClick={() => setOpen(true)}>
+          + SUBIR JUEGO NUEVO
+        </Button>
       </Box>
 
       <Container maxWidth="lg" sx={{ mb: 4 }}>
@@ -88,7 +122,7 @@ export default function Home() {
           )) : juegosFiltrados.map(juego => (
             <Grid item key={juego.id} xs={12} sm={6} md={4}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                <CardMedia component="img" height="200" image={juego.imagen} alt={juego.nombre} />
+                <CardMedia component="img" height="200" image={juego.imagen || "https://placehold.co/600x400?text=Sin+Imagen"} alt={juego.nombre} />
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box display="flex" justifyContent="space-between" mb={1}>
                     <Typography variant="h6" fontWeight="bold">{juego.nombre}</Typography>
@@ -98,27 +132,44 @@ export default function Home() {
                     {juego.descripcion.substring(0, 80)}...
                   </Typography>
                   <Box>
-                    {juego.plataformas.map(p => (
-                      <Chip key={p} label={p} size="small" sx={{ mr: 0.5, mb: 0.5, backgroundColor: 'rgba(255,255,255,0.1)' }} />
+                    {juego.plataformas.map((p, index) => (
+                      <Chip key={index} label={p} size="small" sx={{ mr: 0.5, mb: 0.5, backgroundColor: 'rgba(255,255,255,0.1)' }} />
                     ))}
                   </Box>
                 </CardContent>
-                
-                {/* BOTÓN DE TEXTO SIN ICONO - ESTO NO FALLA */}
                 <Box sx={{ p: 2 }}>
-                   <Button 
-                     variant="contained" 
-                     color="error" 
-                     fullWidth
-                     onClick={() => borrarJuego(juego.id)}
-                   >
-                      ELIMINAR JUEGO
+                   <Button variant="contained" color="error" fullWidth onClick={() => borrarJuego(juego.id)}>
+                      ELIMINAR
                    </Button>
                 </Box>
               </Card>
             </Grid>
           ))}
         </Grid>
+
+        {/* VENTANA EMERGENTE (MODAL) PARA CREAR */}
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <DialogTitle>Publicar Nuevo Videojuego</DialogTitle>
+          <DialogContent>
+            <TextField autoFocus margin="dense" label="Nombre del Juego" fullWidth variant="outlined" 
+              value={nuevoJuego.nombre} onChange={(e) => setNuevoJuego({...nuevoJuego, nombre: e.target.value})} 
+            />
+            <TextField margin="dense" label="Descripción" fullWidth variant="outlined" multiline rows={3}
+              value={nuevoJuego.descripcion} onChange={(e) => setNuevoJuego({...nuevoJuego, descripcion: e.target.value})} 
+            />
+            <TextField margin="dense" label="Precio (€)" type="number" fullWidth variant="outlined" 
+              value={nuevoJuego.precio} onChange={(e) => setNuevoJuego({...nuevoJuego, precio: e.target.value})} 
+            />
+            <TextField margin="dense" label="URL de la Imagen" fullWidth variant="outlined" 
+              value={nuevoJuego.imagen} onChange={(e) => setNuevoJuego({...nuevoJuego, imagen: e.target.value})} 
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button onClick={crearJuego} variant="contained" color="primary">PUBLICAR</Button>
+          </DialogActions>
+        </Dialog>
+
       </Container>
     </Box>
   );
