@@ -4,6 +4,11 @@
       "email": "cristianpsolana@gmail.com",
       "password": "$2a$10$KYiCz.XyNXFUHpSIEM47POjnijjOZYSF5Keq.wzSJvQ/4AZSl2gGm",
       "id": 1
+    },
+    {
+      "email": "cristianpadillasolana@gmail.com",
+      "password": "$2a$10$DU41f5yPk/Z.eGJl2p4gmOpBPbQJm1SYodm0OM4zZ2DtlTubQLIZK",
+      "id": 2
     }
   ],
   "videojuegos": [
@@ -42,6 +47,22 @@
       "precio": 69.99,
       "imagen": "https://placehold.co/600x400/222222/d4af37?text=Elden+Ring",
       "video": "https://www.youtube.com/watch?v=E3Huy2cdih0"
+    },
+    {
+      "nombre": "GTA5",
+      "descripcion": "",
+      "precio": 59.99,
+      "imagen": "",
+      "id": "1771316689501",
+      "fechaLanzamiento": "2026-02-17",
+      "compania": "Indie",
+      "plataformas": [
+        "PC"
+      ],
+      "categorias": [
+        "Aventura"
+      ],
+      "video": ""
     }
   ],
   "categorias": [
