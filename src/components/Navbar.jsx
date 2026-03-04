@@ -1,50 +1,77 @@
-import { AppBar, Toolbar, Button, Box, Avatar, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { AppBar, Toolbar, Typography, Button, Box, Menu, MenuItem, IconButton, Avatar } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
-export default function Navbar() {
-  const navigate = useNavigate();
+function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  // Estado para el menú desplegable
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    navigate('/login');
+  };
 
   return (
-    <AppBar position="static" color="transparent" elevation={0} sx={{ backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+    <AppBar position="static" color="primary" enableColorOnDark>
       <Toolbar>
-        {}
-        <Button 
-            onClick={() => navigate('/')} 
-            sx={{ 
-                fontWeight: 'bold', 
-                fontSize: '1.5rem',
-                background: 'linear-gradient(45deg, #7c4dff, #00e5ff)',
-                backgroundClip: 'text',
-                textFillColor: 'transparent',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
-            }}
-        >
-          GAMEZONE
-        </Button>
-        
-        <Box sx={{ flexGrow: 1 }} />
+        {/* LOGO */}
+        <SportsEsportsIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+        <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit', fontWeight: 'bold', letterSpacing: '.1rem' }}>
+          GAMER LIBRARY
+        </Typography>
 
-        {!user ? (
-          <Button variant="outlined" color="secondary" onClick={() => navigate('/login')}>
-            Iniciar Sesión
-          </Button>
-        ) : (
-          <Box display="flex" alignItems="center" gap={2}>
-            <Typography variant="body2" sx={{ color: 'white', opacity: 0.8 }}>
-                {user.email}
-            </Typography>
-            <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32 }}>
-                {user.email[0].toUpperCase()}
-            </Avatar>
-            <Button color="error" size="small" onClick={logout}>
-                Salir
-            </Button>
-          </Box>
-        )}
+        <Box>
+          {!user ? (
+            <>
+              <Button color="inherit" component={Link} to="/login">Login</Button>
+              <Button color="inherit" component={Link} to="/register">Registro</Button>
+            </>
+          ) : (
+            <div>
+              {/* BOTÓN PERFIL CON MENÚ */}
+              <IconButton
+                size="large"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle sx={{ mr: 1 }}/>
+                <Typography variant="subtitle1" sx={{fontSize: '0.9rem'}}>
+                    {user.email.split('@')[0]}
+                </Typography>
+              </IconButton>
+              
+              {/* EL MENÚ DESPLEGABLE DE MUI */}
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>Mi Perfil</MenuItem>
+                <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>Cerrar Sesión</MenuItem>
+              </Menu>
+            </div>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );
 }
+
+export default Navbar;

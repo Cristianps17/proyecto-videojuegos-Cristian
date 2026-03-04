@@ -53,7 +53,7 @@ export default function Register() {
           
           <Box textAlign="center">
             <Link to="/login" style={{ textDecoration: 'none', color: '#7c4dff' }}>
-              ¿Ya tienes cuenta? Inicia sesión
+              ¿Ya tienes cuenta? Inicia sesión aquí
             </Link>
           </Box>
         </Box>
