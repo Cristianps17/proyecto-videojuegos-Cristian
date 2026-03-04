@@ -22,7 +22,11 @@
       ],
       "precio": 59.99,
       "imagen": "https://placehold.co/600x400/e70012/ffffff?text=Super+Mario",
-      "video": "https://www.youtube.com/watch?v=wGQHQc_3qUE"
+      "video": "https://www.youtube.com/watch?v=wGQHQc_3qUE",
+      "likes": [
+        1
+      ],
+      "dislikes": []
     },
     {
       "id": "2",

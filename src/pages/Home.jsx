@@ -1,176 +1,153 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { 
-  Container, Grid, Card, CardMedia, CardContent, Typography, 
-  TextField, FormControlLabel, Checkbox, Paper, Box, Chip, Skeleton, Button,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  Container, Grid, Card, CardMedia, CardContent, Typography, TextField, 
+  Box, Chip, Button, Dialog, DialogTitle, 
+  DialogContent, DialogActions, Snackbar, Alert, Pagination, 
+  Select, MenuItem, IconButton, Fab, Divider, List, ListItem, ListItemText
 } from '@mui/material';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
+  const { user } = useAuth();
   const [juegos, setJuegos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  const [cargando, setCargando] = useState(true);
-  const [catsSeleccionadas, setCatsSeleccionadas] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [orden, setOrden] = useState('defecto');
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [juegosPorPagina, setJuegosPorPagina] = useState(6);
+  const [comentarioTexto, setComentarioTexto] = useState("");
   
-  // ESTADO PARA EL FORMULARIO DE NUEVO JUEGO
-  const [open, setOpen] = useState(false);
-  const [nuevoJuego, setNuevoJuego] = useState({
-    nombre: '', descripcion: '', precio: '', imagen: ''
-  });
+  // IA State
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [chatRespuestas, setChatRespuestas] = useState([]);
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
+  useEffect(() => { cargarDatos(); }, []);
 
   const cargarDatos = async () => {
-    try {
-      const [resJuegos, resCats] = await Promise.all([
-        api.get('/videojuegos'),
-        api.get('/categorias')
-      ]);
-      setJuegos(resJuegos.data);
-      setCategorias(resCats.data);
-      setCatsSeleccionadas(resCats.data.map(c => c.nombre));
-    } catch (error) { console.error(error); } 
-    finally { setCargando(false); }
+    const [resJuegos, resCats] = await Promise.all([api.get('/videojuegos'), api.get('/categorias')]);
+    setJuegos(resJuegos.data);
+    setCategorias(resCats.data);
   };
 
-  const borrarJuego = async (id) => {
-    if (!window.confirm("¿Seguro que quieres eliminar este juego?")) return;
-    try {
-      await api.delete(`/videojuegos/${id}`);
-      setJuegos(juegos.filter(j => j.id !== id));
-    } catch (error) { alert("Error al borrar. ¿Quizás no tienes permisos?"); }
+  const votarJuego = async (juego, tipoVoto) => {
+    let likes = juego.likes || []; let dislikes = juego.dislikes || [];
+    likes = likes.filter(id => id !== user.id); dislikes = dislikes.filter(id => id !== user.id);
+    if (tipoVoto === 'like') likes.push(user.id); else dislikes.push(user.id);
+    const res = await api.patch(`/videojuegos/${juego.id}`, { likes, dislikes });
+    setJuegos(juegos.map(j => j.id === juego.id ? res.data : j));
   };
 
-  // FUNCIÓN PARA CREAR JUEGO
-  const crearJuego = async () => {
-    if (!nuevoJuego.nombre || !nuevoJuego.precio) return alert("Rellena nombre y precio");
-    
-    try {
-      // Creamos el objeto con datos por defecto para lo que no rellenamos
-      const juegoFinal = {
-        ...nuevoJuego,
-        id: Date.now().toString(), // ID único temporal
-        precio: Number(nuevoJuego.precio),
-        fechaLanzamiento: new Date().toISOString().split('T')[0],
-        compania: "Indie",
-        plataformas: ["PC"],
-        categorias: ["Aventura"], // Por defecto
-        video: ""
-      };
+  const reportarJuego = async (juego) => {
+    const res = await api.patch(`/videojuegos/${juego.id}`, { reportado: true });
+    setJuegos(juegos.map(j => j.id === juego.id ? res.data : j));
+    alert("Juego reportado al administrador.");
+  };
 
-      const res = await api.post('/videojuegos', juegoFinal);
-      setJuegos([...juegos, res.data]); // Lo añadimos a la lista visual
-      setOpen(false); // Cerramos el modal
-      setNuevoJuego({ nombre: '', descripcion: '', precio: '', imagen: '' }); // Limpiamos
-    } catch (error) {
-      alert("Error al crear. ¿Estás logueado?");
+  const enviarComentario = async (juego) => {
+    if(!comentarioTexto) return;
+    const nuevoComentario = { id: Date.now(), userId: user.id, email: user.email, texto: comentarioTexto };
+    const comentariosActuales = juego.comentarios || [];
+    const res = await api.patch(`/videojuegos/${juego.id}`, { comentarios: [...comentariosActuales, nuevoComentario] });
+    setJuegos(juegos.map(j => j.id === juego.id ? res.data : j));
+    setComentarioTexto("");
+  };
+
+  const borrarComentario = async (juego, comentarioId) => {
+    const comentariosFiltrados = juego.comentarios.filter(c => c.id !== comentarioId);
+    const res = await api.patch(`/videojuegos/${juego.id}`, { comentarios: comentariosFiltrados });
+    setJuegos(juegos.map(j => j.id === juego.id ? res.data : j));
+  };
+
+  const preguntarIA = async () => {
+    if(!chatInput) return;
+    const nuevoMensaje = { rol: 'user', texto: chatInput };
+    setChatRespuestas([...chatRespuestas, nuevoMensaje]);
+    setChatInput("");
+    try {
+      const res = await fetch('http://localhost:11434/api/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'lfm2.5-thinking', prompt: `Eres un experto en videojuegos. Responde a esto sobre nuestro catálogo: ${chatInput}`, stream: false })
+      });
+      const data = await res.json();
+      setChatRespuestas(prev => [...prev, { rol: 'ia', texto: data.response }]);
+    } catch(e) {
+      setChatRespuestas(prev => [...prev, { rol: 'ia', texto: "Error de conexión con Ollama. ¿Está el contenedor Docker encendido?" }]);
     }
   };
 
-  const toggleCat = (nombre) => {
-    setCatsSeleccionadas(prev => prev.includes(nombre) ? prev.filter(c => c !== nombre) : [...prev, nombre]);
-  };
-
-  const juegosFiltrados = juegos.filter(j => 
-    (j.nombre.toLowerCase().includes(busqueda.toLowerCase()) || j.descripcion.toLowerCase().includes(busqueda.toLowerCase())) &&
-    j.categorias.some(c => catsSeleccionadas.includes(c))
-  );
+  let juegosProcesados = juegos.filter(j => j.nombre.toLowerCase().includes(busqueda.toLowerCase()));
+  if (orden === 'popularidad') juegosProcesados.sort((a, b) => ((b.likes?.length||0)-(b.dislikes?.length||0)) - ((a.likes?.length||0)-(a.dislikes?.length||0)));
+  const juegosPaginados = juegosProcesados.slice((paginaActual - 1) * juegosPorPagina, paginaActual * juegosPorPagina);
 
   return (
-    <Box>
-      <Box sx={{ 
-        height: '300px', 
-        backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3), #121212), url("https://wallpaperaccess.com/full/7445.jpg")',
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', mb: 4
-      }}>
-        <Typography variant="h2" component="h1" sx={{ fontWeight: 900, textShadow: '0 0 20px #7c4dff', textAlign: 'center', px: 2 }}>
-          EXPLORA MUNDOS
-        </Typography>
-        
-        {/* BOTÓN GRANDE PARA AÑADIR JUEGO */}
-        <Button variant="contained" color="secondary" size="large" sx={{ mt: 3, fontWeight: 'bold' }} onClick={() => setOpen(true)}>
-          + SUBIR JUEGO NUEVO
-        </Button>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4, position: 'relative', minHeight: '80vh' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+        <Select value={orden} onChange={(e) => setOrden(e.target.value)} size="small" sx={{bgcolor: 'background.paper'}}>
+          <MenuItem value="defecto">Orden por defecto</MenuItem>
+          <MenuItem value="popularidad">Más Populares</MenuItem>
+        </Select>
       </Box>
 
-      <Container maxWidth="lg" sx={{ mb: 4 }}>
-        <Paper elevation={4} sx={{ p: 3, mb: 4, borderRadius: 2, background: 'rgba(255,255,255,0.05)' }}>
-          <TextField 
-            fullWidth label="¿Qué buscas hoy?" variant="outlined" 
-            value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-            sx={{ mb: 2, input: { color: 'white' } }}
-          />
-          <Grid container>
-            {categorias.map(cat => (
-              <Grid item key={cat.id} xs={6} sm={4} md={2}>
-                <FormControlLabel
-                  control={<Checkbox checked={catsSeleccionadas.includes(cat.nombre)} onChange={() => toggleCat(cat.nombre)} color="secondary" />}
-                  label={cat.nombre}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-
-        <Grid container spacing={3}>
-          {cargando ? Array.from(new Array(6)).map((_, i) => (
-             <Grid item xs={12} sm={6} md={4} key={i}><Skeleton variant="rectangular" height={300} sx={{borderRadius: 2}} /></Grid>
-          )) : juegosFiltrados.map(juego => (
-            <Grid item key={juego.id} xs={12} sm={6} md={4}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                <CardMedia component="img" height="200" image={juego.imagen || "https://placehold.co/600x400?text=Sin+Imagen"} alt={juego.nombre} />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography variant="h6" fontWeight="bold">{juego.nombre}</Typography>
-                    <Chip label={`${juego.precio} €`} color="primary" variant="outlined" />
-                  </Box>
-                  <Typography variant="body2" color="text.secondary" paragraph>
-                    {juego.descripcion.substring(0, 80)}...
-                  </Typography>
-                  <Box>
-                    {juego.plataformas.map((p, index) => (
-                      <Chip key={index} label={p} size="small" sx={{ mr: 0.5, mb: 0.5, backgroundColor: 'rgba(255,255,255,0.1)' }} />
-                    ))}
-                  </Box>
-                </CardContent>
-                <Box sx={{ p: 2 }}>
-                   <Button variant="contained" color="error" fullWidth onClick={() => borrarJuego(juego.id)}>
-                      ELIMINAR
-                   </Button>
+      <Grid container spacing={3}>
+        {juegosPaginados.map(juego => (
+          <Grid item key={juego.id} xs={12} sm={6} md={4}>
+            <Card>
+              <CardMedia component="img" height="150" image={juego.imagen || "https://placehold.co/600"} />
+              <CardContent>
+                <Typography variant="h6">{juego.nombre} <Chip label={`${juego.precio}€`} size="small"/></Typography>
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <IconButton color="success" onClick={() => votarJuego(juego, 'like')}><ThumbUpIcon fontSize="small"/> {juego.likes?.length||0}</IconButton>
+                  <IconButton color="error" onClick={() => votarJuego(juego, 'dislike')}><ThumbDownIcon fontSize="small"/> {juego.dislikes?.length||0}</IconButton>
+                  <IconButton color="warning" onClick={() => reportarJuego(juego)} title="Reportar"><ReportProblemIcon fontSize="small"/></IconButton>
                 </Box>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                <Divider sx={{my:1}}/>
+                <Typography variant="caption">Comentarios:</Typography>
+                <List dense>
+                  {(juego.comentarios || []).map(c => (
+                    <ListItem key={c.id} secondaryAction={ (user?.email === 'admin@test.com' || user?.id === c.userId) && <IconButton edge="end" size="small" color="error" onClick={()=>borrarComentario(juego, c.id)}><DeleteIcon fontSize="small"/></IconButton> }>
+                      <ListItemText primary={c.texto} secondary={c.email.split('@')[0]} />
+                    </ListItem>
+                  ))}
+                </List>
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                  <TextField size="small" fullWidth placeholder="Comentar..." value={comentarioTexto} onChange={e=>setComentarioTexto(e.target.value)} />
+                  <Button variant="contained" onClick={() => enviarComentario(juego)}>+</Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+      <Pagination count={Math.ceil(juegosProcesados.length/juegosPorPagina)} page={paginaActual} onChange={(e,v)=>setPaginaActual(v)} sx={{mt:3, display:'flex', justifyContent:'center'}} />
 
-        {/* VENTANA EMERGENTE (MODAL) PARA CREAR */}
-        <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle>Publicar Nuevo Videojuego</DialogTitle>
-          <DialogContent>
-            <TextField autoFocus margin="dense" label="Nombre del Juego" fullWidth variant="outlined" 
-              value={nuevoJuego.nombre} onChange={(e) => setNuevoJuego({...nuevoJuego, nombre: e.target.value})} 
-            />
-            <TextField margin="dense" label="Descripción" fullWidth variant="outlined" multiline rows={3}
-              value={nuevoJuego.descripcion} onChange={(e) => setNuevoJuego({...nuevoJuego, descripcion: e.target.value})} 
-            />
-            <TextField margin="dense" label="Precio (€)" type="number" fullWidth variant="outlined" 
-              value={nuevoJuego.precio} onChange={(e) => setNuevoJuego({...nuevoJuego, precio: e.target.value})} 
-            />
-            <TextField margin="dense" label="URL de la Imagen" fullWidth variant="outlined" 
-              value={nuevoJuego.imagen} onChange={(e) => setNuevoJuego({...nuevoJuego, imagen: e.target.value})} 
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={crearJuego} variant="contained" color="primary">PUBLICAR</Button>
-          </DialogActions>
-        </Dialog>
+      <Fab color="secondary" sx={{ position: 'fixed', bottom: 20, right: 20 }} onClick={() => setChatOpen(!chatOpen)}>
+        {chatOpen ? <CloseIcon /> : <SmartToyIcon />}
+      </Fab>
 
-      </Container>
-    </Box>
+      {chatOpen && (
+        <Paper elevation={10} sx={{ position: 'fixed', bottom: 90, right: 20, width: 350, height: 450, display: 'flex', flexDirection: 'column', p: 2, zIndex: 1000 }}>
+          <Typography variant="h6" color="secondary" gutterBottom>Asistente IA</Typography>
+          <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2, p: 1, bgcolor: '#1e1e1e', borderRadius: 1 }}>
+            {chatRespuestas.map((msg, i) => (
+              <Typography key={i} align={msg.rol === 'user' ? 'right' : 'left'} color={msg.rol === 'user' ? 'primary' : 'white'} sx={{mb:1, fontSize:'0.9rem'}}>
+                <strong>{msg.rol === 'user' ? 'Tú: ' : 'IA: '}</strong>{msg.texto}
+              </Typography>
+            ))}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <TextField fullWidth size="small" placeholder="Pregunta sobre juegos..." value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && preguntarIA()}/>
+            <Button variant="contained" onClick={preguntarIA}>Enviar</Button>
+          </Box>
+        </Paper>
+      )}
+    </Container>
   );
 }
